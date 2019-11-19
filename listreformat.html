@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+
+        <title>List Reformat</title>
+
+        <!---------- CSS ---------->
+
+        <style>
+            html,body{
+                margin:0;
+                background-color: #eee;
+                font-family: verdana;
+            }
+            
+            h5{
+                font-size: 10pt;
+                font-weight: bold;
+                margin: 14px 0 4px;
+            }
+            
+            input[type='checkbox']{
+                margin-bottom: 5px;
+            }
+            
+            label{
+                font-size: 9pt;
+            }
+            
+            label:after{
+                content:'\A';
+                white-space: pre;
+            }
+                        
+            .main_div{
+                position:absolute;
+                top:0;
+                bottom:10px;
+                left:0;
+                right:0;
+                display: flex;
+                flex-flow: column;
+                text-align: center;
+            }
+            
+            .top_div{
+                display: inline-block;
+                width:100%;
+            }
+
+            .main_frame{
+                display:inline-block;
+                vertical-align: top;
+                text-align: left;
+                height:180px;
+                border:3px ridge;
+                padding:5px 20px;
+                margin:5px;
+                background-color: #e5e5e5;
+                box-shadow: 10px 10px 10px 0px rgba(0,0,0,0.10);
+            }
+            
+            .bottom_div{
+                display: inline-block;
+                flex-grow: 1;
+            }
+
+            .text_input{
+                display: inline-block;
+                width:98%;
+                height:99%;
+                resize: none;
+            }
+            
+            .rescan_button{
+                padding:2px;
+                margin-bottom: 2px;
+                width:100%;
+            }
+
+            .quotesLabel{
+                display: inline-block;
+                margin-right: 10px;
+                margin-left: -8px;
+            }
+
+            .notify{
+                position:absolute;
+                top:45%;
+                left:0;
+                right:0;
+                text-align: center;
+                font-size: 40pt;
+                font-weight: bold;
+                color:#666;
+                visibility: hidden;
+                opacity: 0;
+                transition-timing-function: ease;
+                transition: opacity 0.6s, visibility 1s;
+            }
+
+            .show{
+                transition: opacity 0.3s, visibility 0s;
+                visibility: visible;
+                opacity: 1;
+            }
+        </style>
+
+
+        <!---------- JAVASCRIPT ---------->
+        
+        <script>
+
+            /**
+             * List Reformatter
+             * 
+             * The script works by perfoming an analysis based on the 'Analysis options' 
+             * and splitting the text elements into an array. When options are chosen, 
+             * the elements are rejoined into the textbox with the selected options.
+             */
+
+            var list=[];
+            var delimiter;
+            var linefeed;
+            var quote;
+            var prefix='';
+            var prefix_inside='';
+            var prefix_outside='';
+            var suffix='';
+            var suffix_inside='';
+            var suffix_outside='';
+            var splitflag=0;
+            var detect;
+            
+            /**
+             * Create 'paste in textarea' event listener, call detechChange()
+             */
+            window.addEventListener('DOMContentLoaded', function() {
+                document.querySelector('textarea').addEventListener('paste', (e) => {
+                    splitflag=0;
+                    detect=window.setInterval(detectChange,200);
+                });
+            });
+            
+            /**
+             *  Shorthand to getElementById
+             */
+            function el(id){
+                return document.getElementById(id);
+            }
+
+            /**
+             *  Generate a short notification
+             */
+            function notify(text){
+                var notify=el('notify');
+                notify.innerHTML=text;
+                notify.className="notify show";
+                setTimeout(function(){
+                    notify.className="notify";
+                },600);                
+            }
+
+            /**
+             *  Attached to 'paste' event listener - call text
+             *  analysis when anything is pasted into the textbox
+             */
+            function detectChange(){
+                if(el('maintext').value.length>0){
+                    clearInterval(detect);
+                    getChars();
+                }
+            }
+            
+            /**
+             *  Perform analysis on the contents of the textbox
+             *  Split on selected characters
+             */
+            function getChars(){
+                var textcontent=el('maintext').value;
+                
+                //Remove unwanted quotes
+                var replaceElements=document.getElementsByName('keepchar');
+                var replaceList='';
+                for(var i=0;i<replaceElements.length;i++){
+                    var checkbox=replaceElements[i];
+                    if(!checkbox.checked){
+                        replaceList+=checkbox.dataset.char;
+                    }
+                }
+                var replaceRegex=new RegExp('[' + replaceList + '\\r]','g');
+                var listcontent=textcontent.replace(replaceRegex,'');
+                
+                //Split on selected characters into an array
+                var splitElements=document.getElementsByName('splitchar');
+                var splitList='';
+                for(var i=0;i<splitElements.length;i++){
+                    var checkbox=splitElements[i];
+                    if(checkbox.checked){
+                        splitList+=checkbox.dataset.char;
+                    }
+                }
+                var splitRegex=new RegExp('[' + splitList + ']','g');
+                list=listcontent.split(splitRegex);
+
+                if(list[list.length-1].length==0){
+                    list.pop();
+                }
+                
+                //Extract the current delimiter
+                var match=textcontent.match(/[\,;]/);
+                if(match){
+                    delimiter=match[0];
+                } else {
+                    delimiter='';
+                }
+
+                //Extract current quote character
+                var match=textcontent.match(/['"]/);
+                if(match){
+                    quote=match[0];
+                } else {
+                    quote='';
+                }
+
+                //Extract current linefeed character
+                match=textcontent.match(/[\r\n]/);
+                if(match){
+                    var char=match[0];
+                    if(char=="\r"){
+                        char="\r\n";
+                    }
+                    linefeed=char;
+                } else {
+                    linefeed='';
+                }
+                
+                notify('Analysed!');
+            }
+            
+            /**
+             *  Update the text based on selected options
+             */
+            function updateText(){
+                //Add prefix in selected position
+                if(el('prefix_inside').checked){
+                    prefix_inside=prefix;
+                    prefix_outside='';
+                } else {
+                    prefix_outside=prefix;
+                    prefix_inside='';
+                }
+                
+                //Add suffix in selected position
+                if(el('suffix_inside').checked){
+                    suffix_inside=suffix;
+                    suffix_outside='';
+                } else {
+                    suffix_outside=suffix;
+                    suffix_inside='';
+                }
+                
+
+                if(splitflag==1){
+                    blocksplit();
+                } else {
+                    //Actually perform the update
+                    el('maintext').value=prefix_outside + quote + prefix_inside +
+                            list.join(suffix_inside + quote + suffix_outside + delimiter + linefeed + 
+                            prefix_outside + quote + prefix_inside) + suffix_inside + quote + suffix_outside;
+                }
+            }
+            
+            /**
+             *  Update text splitting list into blocks of selected size
+             */
+            function blocksplit(){
+                if(list.length==0){
+                    return;
+                }
+                
+                var splitcount=el('splitsize').value;
+                if(splitcount.length==0){
+                    return;
+                }
+                
+                var textcontent='';
+                var count=0;
+                var listlength=list.length;
+                
+                //Generate the blocksplit content
+                textcontent+=prefix;
+                for(var i=0;i<listlength;i++){
+                    textcontent+=quote+list[i]+quote;
+                    count++;
+                    if(i<listlength-1){
+                        if(count==splitcount){
+                            textcontent+=suffix + "\n\n" + prefix;
+                            count=0;
+                        } else {
+                            textcontent+=delimiter;
+                        }
+                    }
+                }
+                textcontent+=suffix;
+                
+                el('maintext').value=textcontent;
+                splitflag=1;
+            }
+            
+            /**
+             *  Remove block split
+             */
+            function unsplit(){
+                splitflag=0;
+                updateText();
+            }
+            
+            /**
+             *  Set the delimter character
+             */
+            function setDelimiter(char){
+                delimiter=char;
+                updateText();
+            }
+            
+            /**
+             *  Set the linefeed character
+             */            
+            function setLinefeed(char){
+                linefeed=char;
+                updateText();
+            }
+            
+            /**
+             *  Set the quote character
+             */ 
+            function setQuote(char){
+                quote=char;
+                updateText();
+            }
+            
+            /**
+             *  Set prefix text
+             */ 
+            function setPrefix(){
+                prefix=el('prefix').value;
+                updateText();
+            }
+
+            /**
+             *  Remove prefix text
+             */ 
+            function clearPrefix(){
+                prefix='';
+                updateText();
+            }
+            
+            /**
+             *  Set suffix text
+             */ 
+            function setSuffix(){
+                suffix=el('suffix').value;
+                updateText();
+            }
+
+            /**
+             *  remove suffix text
+             */ 
+            function clearSuffix(){
+                suffix='';
+                updateText();
+            }
+            
+            /**
+             *  Perform a reanalysis with selected options
+             */ 
+            function rescan(){
+                getChars();
+                updateText();
+            }
+           
+            /**
+             *  Copy text to clipboard
+             */ 
+            function copyText(){
+                el('maintext').select();
+                document.execCommand('copy')
+                document.getSelection().removeAllRanges();
+                notify('Copied!');
+            }
+            
+            /**
+             * Uppercase list
+             */
+            function uppercase(){
+                for(var i=0;i<list.length;i++) {
+                    list[i]=list[i].toUpperCase();
+                }
+                updateText();
+            }
+            
+            /**
+             * Lowercase list
+             */
+            function lowercase(){
+                for(var i=0;i<list.length;i++) {
+                    list[i]=list[i].toLowerCase();
+                }
+                updateText();
+            }
+            
+            /**
+             * Deduplicate list
+             */
+            function dedupe() {
+                var dedupe =[...new Set(list)];
+                list = dedupe;
+                updateText();
+            }
+        </script>
+
+    </head>
+
+
+
+    <!---------- HTML ---------->
+
+    <body>
+        <div class='main_div'>
+            <div class='top_div'>
+                <h3>List reformatter</h3>
+                
+                <div class='main_frame' id='functions_frame'>
+                    <h5>Functions</h5>
+                    <br><button class='rescan_button' onclick='rescan()'>Re-analyse text</button>
+                    <br><button class='rescan_button' onclick='copyText()'>Copy Text</button>
+                    <br><button class='rescan_button' onclick='uppercase()'>Uppercase</button>
+                    <br><button class='rescan_button' onclick='lowercase()'>Lowercase</button>
+                    <br><button class='rescan_button' onclick='dedupe()'>Deduplicate</button>
+                </div>
+                
+                <div class='main_frame' id='options_frame'>
+                    <h5>Delimiter</h5>
+                    <button onclick='setDelimiter(",")'>Comma</button>
+                    <button onclick='setDelimiter(";")'>Semicolon</button>
+                    <button onclick='setDelimiter("|")'>Pipe</button>
+                    <button onclick='setDelimiter(" ")'>Space</button>
+                    <button onclick='setDelimiter("")'>None</button>
+                    
+                    <h5>Quotes</h5>
+                    <button onclick="setQuote('\'')">Single quotes</button>
+                    <button onclick='setQuote("\"")'>Double quotes</button>
+                    <button onclick='setQuote("")'>None</button>
+                    
+                    <h5>Linefeeds</h5>
+                    <button onclick='setLinefeed("\n")'>LF</button>
+                    <button onclick='setLinefeed("\r\n")'>CRLF</button>
+                    <button onclick='setLinefeed("")'>None</button>
+                </div>
+                
+                <div class='main_frame' id='splits_prefix_suffix_frame'>
+                    <h5>Splits</h5>
+                    <button onclick='blocksplit()'>Split into blocks</button>
+                    <input type='number' id='splitsize' placeholder='Block size' value='5'>
+                    <button onclick='unsplit()'>Remove block split</button>
+                    
+                    <h5>Prefix</h5>
+                    <input type='text' id='prefix' placeholder='Prefix' value=''>
+                    <button onclick='setPrefix()'>Prefix</button>
+                    
+                    <input type='checkbox' id='prefix_inside' onclick='updateText()'>
+                    <label for='prefix_inside' class='quotesLabel'>Within quotes</label>
+
+                    <button onclick='clearPrefix()'>No Prefix</button>
+                    
+                    <h5>Suffix</h5>
+                    <input type='text' id='suffix' placeholder='Suffix' value=''>
+                    <button onclick='setSuffix()'>Suffix</button>
+                    
+                    <input type='checkbox' id='suffix_inside' onclick='updateText()'>
+                    <label for='suffix_inside' class='quotesLabel'>Within quotes</label>
+
+                    <button onclick='clearSuffix()'>No Suffix</button>
+                </div>
+                
+                <div class='main_frame check_frame' id='analysis_frame'>
+                    <h5>Analysis options</h5>
+                    <input type='checkbox' name='keepchar' data-char="'" id='keepsingle'>
+                    <label for='keepsingle'>Keep single quotes</label>
+                    
+                    <input type='checkbox' name='keepchar' data-char='"'  id='keepdouble'>
+                    <label for='keepdouble'>Keep double quotes</label>
+                    
+                    <input type='checkbox' name='splitchar' data-char='\n' id='splitlinefeed' checked>
+                    <label for='splitlinefeed'>Split on linefeed</label>
+                    
+                    <input type='checkbox' name='splitchar' data-char=',' id='splitcomma' checked>
+                    <label for='splitcomma'>Split on commas</label>
+                    
+                    <input type='checkbox' name='splitchar' data-char=';' id='splitsemi' checked>
+                    <label for='splitsemi'>Split on semicolons</label>
+                    
+                    <input type='checkbox' name='splitchar' data-char='|' id='splitpipe' checked>
+                    <label for='splitpipe'>Split on pipe</label>
+                    
+                    <input type='checkbox' name='splitchar' data-char=' ' id='splitspace' checked>
+                    <label for='splitspace'>Split on space</label>
+                </div>
+                
+                <hr>
+
+            </div>
+
+            <div class='bottom_div'>
+                <textarea id='maintext' class='text_input' placeholder='Paste list here...'></textarea>
+            </div>
+
+            <div class='notify' id='notify'></div>
+
+        </div>
+    </body>
+</html>
