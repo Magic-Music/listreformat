@@ -1,0 +1,7 @@
+1. You may use this software as-is.
+2. No warranty is given or implied. No liabaility of any kind will be accepted by using this software.
+3. Downloading and using this software is entirely at your own risk.
+4. You may not distribute the software
+5. Downloading and using this software means you accept this licence without question or exception.
+
+Essentially you can use this, but if it goes wrong that's your problem.
