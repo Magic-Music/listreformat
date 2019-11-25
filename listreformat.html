@@ -205,6 +205,7 @@
                 var splitRegex=new RegExp('[' + splitList + ']','g');
                 list=listcontent.split(splitRegex);
 
+                //Remove last element if it's empty
                 if(list[list.length-1].length==0){
                     list.pop();
                 }
@@ -244,6 +245,12 @@
              *  Update the text based on selected options
              */
             function updateText(){
+                //If we're splitting into blocks, do that instead
+                if(splitflag==1){
+                    blocksplit();
+                    return;
+                }
+                
                 //Add prefix in selected position
                 if(el('prefix_inside').checked){
                     prefix_inside=prefix;
@@ -261,16 +268,11 @@
                     suffix_outside=suffix;
                     suffix_inside='';
                 }
-                
 
-                if(splitflag==1){
-                    blocksplit();
-                } else {
-                    //Actually perform the update
-                    el('maintext').value=prefix_outside + quote + prefix_inside +
-                            list.join(suffix_inside + quote + suffix_outside + delimiter + linefeed + 
-                            prefix_outside + quote + prefix_inside) + suffix_inside + quote + suffix_outside;
-                }
+                //Actually perform the update
+                el('maintext').value=prefix_outside + quote + prefix_inside +
+                        list.join(suffix_inside + quote + suffix_outside + delimiter + linefeed + 
+                        prefix_outside + quote + prefix_inside) + suffix_inside + quote + suffix_outside;
             }
             
             /**
