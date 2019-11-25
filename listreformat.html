@@ -133,6 +133,7 @@
             var suffix_outside='';
             var splitflag=0;
             var detect;
+            var sort_descending_next=false;
             
             /**
              * Create 'paste in textarea' event listener, call detechChange()
@@ -444,6 +445,20 @@
                 updateText();
                 notify('Trimmed!');
             }
+            
+            /**
+             * Sort elements
+             */
+            function sort() {
+                list.sort();
+                if(sort_descending_next) {
+                    list.reverse();
+                }
+                sort_descending_next=!sort_descending_next;
+                updateText();
+                notify(el('sort_button').innerHTML + "!");
+                el('sort_button').innerHTML=(sort_descending_next) ? 'Sort Descending' : 'Sort Ascending';
+            }
         </script>
 
     </head>
@@ -461,11 +476,15 @@
                     <h5>Functions</h5>
                     <button class='rescan_button' onclick='rescan()'>Re-analyse text</button>
                     <button class='rescan_button' onclick='copyText()'>Copy Text</button><br>
+                    
                     <button class='rescan_button' onclick='uppercase()'>Uppercase</button>
                     <button class='rescan_button' onclick='lowercase()'>Lowercase</button><br>
+                    
                     <button class='rescan_button' onclick='dedupe()'>Deduplicate</button>
                     <button class='rescan_button' onclick='removeBlanks()'>Remove Blanks</button><br>
+                    
                     <button class='rescan_button' onclick='trimWhitespace()'>Trim Whitespace</button>
+                    <button class='rescan_button' id='sort_button' onclick='sort()'>Sort</button>
                 </div>
                 
                 <div class='main_frame' id='options_frame'>
