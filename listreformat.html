@@ -402,6 +402,7 @@
                     list[i]=list[i].toUpperCase();
                 }
                 updateText();
+                notify('Uppercase!');
             }
             
             /**
@@ -412,6 +413,7 @@
                     list[i]=list[i].toLowerCase();
                 }
                 updateText();
+                notify('Lowercase!');
             }
             
             /**
@@ -420,6 +422,7 @@
             function dedupe() {
                 list=[...new Set(list)];
                 updateText();
+                notify('De-duped!');
             }
             
             /**
@@ -430,6 +433,7 @@
                     return element.length > 0;
                 });
                 updateText();
+                notify('Blanks Removed!');
             }
             
             /**
@@ -438,6 +442,7 @@
             function trimWhitespace() {
                 list=list.map(s => s.trim());
                 updateText();
+                notify('Trimmed!');
             }
         </script>
 
