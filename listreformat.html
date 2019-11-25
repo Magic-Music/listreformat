@@ -75,9 +75,9 @@
             }
             
             .rescan_button{
-                padding:2px;
-                margin-bottom: 2px;
-                width:100%;
+                padding:4px;
+                margin: 2px;
+                width:122px;
             }
 
             .quotesLabel{
@@ -418,8 +418,25 @@
              * Deduplicate list
              */
             function dedupe() {
-                var dedupe =[...new Set(list)];
-                list = dedupe;
+                list=[...new Set(list)];
+                updateText();
+            }
+            
+            /**
+             * Remove blank elements
+             */
+            function removeBlanks() {
+                list=list.filter(function(element) {
+                    return element.length > 0;
+                });
+                updateText();
+            }
+            
+            /**
+             * Trim whitespace from elements
+             */
+            function trimWhitespace() {
+                list=list.map(s => s.trim());
                 updateText();
             }
         </script>
@@ -437,11 +454,13 @@
                 
                 <div class='main_frame' id='functions_frame'>
                     <h5>Functions</h5>
-                    <br><button class='rescan_button' onclick='rescan()'>Re-analyse text</button>
-                    <br><button class='rescan_button' onclick='copyText()'>Copy Text</button>
-                    <br><button class='rescan_button' onclick='uppercase()'>Uppercase</button>
-                    <br><button class='rescan_button' onclick='lowercase()'>Lowercase</button>
-                    <br><button class='rescan_button' onclick='dedupe()'>Deduplicate</button>
+                    <button class='rescan_button' onclick='rescan()'>Re-analyse text</button>
+                    <button class='rescan_button' onclick='copyText()'>Copy Text</button><br>
+                    <button class='rescan_button' onclick='uppercase()'>Uppercase</button>
+                    <button class='rescan_button' onclick='lowercase()'>Lowercase</button><br>
+                    <button class='rescan_button' onclick='dedupe()'>Deduplicate</button>
+                    <button class='rescan_button' onclick='removeBlanks()'>Remove Blanks</button><br>
+                    <button class='rescan_button' onclick='trimWhitespace()'>Trim Whitespace</button>
                 </div>
                 
                 <div class='main_frame' id='options_frame'>
