@@ -15,6 +15,10 @@
                 font-family: verdana;
             }
             
+            h3{
+                margin-bottom: 0px;
+            }
+            
             h5{
                 font-size: 10pt;
                 font-weight: bold;
@@ -54,7 +58,7 @@
                 display:inline-block;
                 vertical-align: top;
                 text-align: left;
-                height:180px;
+                height:200px;
                 border:3px ridge;
                 padding:5px 20px;
                 margin:5px;
@@ -72,6 +76,11 @@
                 width:98%;
                 height:99%;
                 resize: none;
+            }
+            
+            .long_textbox {
+                width:420px;
+                display:block;
             }
             
             .rescan_button{
@@ -511,18 +520,17 @@
                     <button onclick='blocksplit()'>Split into blocks</button>
                     <input type='number' id='splitsize' placeholder='Block size' value='5'>
                     <button onclick='unsplit()'>Remove block split</button>
-                    
-                    <h5>Prefix</h5>
-                    <input type='text' id='prefix' placeholder='Prefix' value=''>
+
+                    <h5>Prefix and Suffix</h5>
+                    <input type='text' id='prefix' placeholder='Prefix' class='long_textbox' value=''>
                     <button onclick='setPrefix()'>Prefix</button>
                     
                     <input type='checkbox' id='prefix_inside' onclick='updateText()'>
                     <label for='prefix_inside' class='quotesLabel'>Within quotes</label>
 
-                    <button onclick='clearPrefix()'>No Prefix</button>
-                    
-                    <h5>Suffix</h5>
-                    <input type='text' id='suffix' placeholder='Suffix' value=''>
+                    <button onclick='clearPrefix()'>No Prefix</button><hr>
+
+                    <input type='text' id='suffix' placeholder='Suffix' class='long_textbox' value=''>
                     <button onclick='setSuffix()'>Suffix</button>
                     
                     <input type='checkbox' id='suffix_inside' onclick='updateText()'>
