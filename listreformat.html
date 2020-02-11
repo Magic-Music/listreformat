@@ -50,8 +50,15 @@
             }
             
             .top_div{
-                display: inline-block;
+                display: block;
                 width:100%;
+                max-height:350px;
+                overflow-x: scroll;
+            }
+            
+            .inner_top{
+                display:inline-block;
+                width:1400px;
             }
 
             .main_frame{
@@ -479,92 +486,94 @@
     <body>
         <div class='main_div'>
             <div class='top_div'>
-                <h3>List reformatter</h3>
-                
-                <div class='main_frame' id='functions_frame'>
-                    <h5>Functions</h5>
-                    <button class='rescan_button' onclick='rescan()'>Re-analyse text</button>
-                    <button class='rescan_button' onclick='copyText()'>Copy Text</button><br>
-                    
-                    <button class='rescan_button' onclick='uppercase()'>Uppercase</button>
-                    <button class='rescan_button' onclick='lowercase()'>Lowercase</button><br>
-                    
-                    <button class='rescan_button' onclick='dedupe()'>Deduplicate</button>
-                    <button class='rescan_button' onclick='removeBlanks()'>Remove Blanks</button><br>
-                    
-                    <button class='rescan_button' onclick='trimWhitespace()'>Trim Whitespace</button>
-                    <button class='rescan_button' id='sort_button' onclick='sort()'>Sort</button>
+                <div class='inner_top'>
+                    <h3>List reformatter</h3>
+
+                    <div class='main_frame' id='functions_frame'>
+                        <h5>Functions</h5>
+                        <button class='rescan_button' onclick='rescan()'>Re-analyse text</button>
+                        <button class='rescan_button' onclick='copyText()'>Copy Text</button><br>
+
+                        <button class='rescan_button' onclick='uppercase()'>Uppercase</button>
+                        <button class='rescan_button' onclick='lowercase()'>Lowercase</button><br>
+
+                        <button class='rescan_button' onclick='dedupe()'>Deduplicate</button>
+                        <button class='rescan_button' onclick='removeBlanks()'>Remove Blanks</button><br>
+
+                        <button class='rescan_button' onclick='trimWhitespace()'>Trim Whitespace</button>
+                        <button class='rescan_button' id='sort_button' onclick='sort()'>Sort</button>
+                    </div>
+
+                    <div class='main_frame' id='options_frame'>
+                        <h5>Delimiter</h5>
+                        <button onclick='setDelimiter(",")'>Comma</button>
+                        <button onclick='setDelimiter(";")'>Semicolon</button>
+                        <button onclick='setDelimiter("|")'>Pipe</button>
+                        <button onclick='setDelimiter(" ")'>Space</button>
+                        <button onclick='setDelimiter("")'>None</button>
+
+                        <h5>Quotes</h5>
+                        <button onclick="setQuote('\'')">Single quotes</button>
+                        <button onclick='setQuote("\"")'>Double quotes</button>
+                        <button onclick='setQuote("")'>None</button>
+
+                        <h5>Linefeeds</h5>
+                        <button onclick='setLinefeed("\n")'>LF</button>
+                        <button onclick='setLinefeed("\r\n")'>CRLF</button>
+                        <button onclick='setLinefeed("")'>None</button>
+                    </div>
+
+                    <div class='main_frame' id='splits_prefix_suffix_frame'>
+                        <h5>Splits</h5>
+                        <button onclick='blocksplit()'>Split into blocks</button>
+                        <input type='number' id='splitsize' placeholder='Block size' value='5'>
+                        <button onclick='unsplit()'>Remove block split</button>
+
+                        <h5>Prefix and Suffix</h5>
+                        <input type='text' id='prefix' placeholder='Prefix' class='long_textbox' value=''>
+                        <button onclick='setPrefix()'>Prefix</button>
+
+                        <input type='checkbox' id='prefix_inside' onclick='updateText()'>
+                        <label for='prefix_inside' class='quotesLabel'>Within quotes</label>
+
+                        <button onclick='clearPrefix()'>No Prefix</button><hr>
+
+                        <input type='text' id='suffix' placeholder='Suffix' class='long_textbox' value=''>
+                        <button onclick='setSuffix()'>Suffix</button>
+
+                        <input type='checkbox' id='suffix_inside' onclick='updateText()'>
+                        <label for='suffix_inside' class='quotesLabel'>Within quotes</label>
+
+                        <button onclick='clearSuffix()'>No Suffix</button>
+                    </div>
+
+                    <div class='main_frame check_frame' id='analysis_frame'>
+                        <h5>Analysis options</h5>
+                        <input type='checkbox' name='keepchar' data-char="'" id='keepsingle'>
+                        <label for='keepsingle'>Keep single quotes</label>
+
+                        <input type='checkbox' name='keepchar' data-char='"'  id='keepdouble'>
+                        <label for='keepdouble'>Keep double quotes</label>
+
+                        <input type='checkbox' name='splitchar' data-char='\n' id='splitlinefeed' checked>
+                        <label for='splitlinefeed'>Split on linefeed</label>
+
+                        <input type='checkbox' name='splitchar' data-char=',' id='splitcomma' checked>
+                        <label for='splitcomma'>Split on commas</label>
+
+                        <input type='checkbox' name='splitchar' data-char=';' id='splitsemi' checked>
+                        <label for='splitsemi'>Split on semicolons</label>
+
+                        <input type='checkbox' name='splitchar' data-char='|' id='splitpipe' checked>
+                        <label for='splitpipe'>Split on pipe</label>
+
+                        <input type='checkbox' name='splitchar' data-char=' ' id='splitspace' checked>
+                        <label for='splitspace'>Split on space</label>
+                    </div>
+
+                    <hr>
+
                 </div>
-                
-                <div class='main_frame' id='options_frame'>
-                    <h5>Delimiter</h5>
-                    <button onclick='setDelimiter(",")'>Comma</button>
-                    <button onclick='setDelimiter(";")'>Semicolon</button>
-                    <button onclick='setDelimiter("|")'>Pipe</button>
-                    <button onclick='setDelimiter(" ")'>Space</button>
-                    <button onclick='setDelimiter("")'>None</button>
-                    
-                    <h5>Quotes</h5>
-                    <button onclick="setQuote('\'')">Single quotes</button>
-                    <button onclick='setQuote("\"")'>Double quotes</button>
-                    <button onclick='setQuote("")'>None</button>
-                    
-                    <h5>Linefeeds</h5>
-                    <button onclick='setLinefeed("\n")'>LF</button>
-                    <button onclick='setLinefeed("\r\n")'>CRLF</button>
-                    <button onclick='setLinefeed("")'>None</button>
-                </div>
-                
-                <div class='main_frame' id='splits_prefix_suffix_frame'>
-                    <h5>Splits</h5>
-                    <button onclick='blocksplit()'>Split into blocks</button>
-                    <input type='number' id='splitsize' placeholder='Block size' value='5'>
-                    <button onclick='unsplit()'>Remove block split</button>
-
-                    <h5>Prefix and Suffix</h5>
-                    <input type='text' id='prefix' placeholder='Prefix' class='long_textbox' value=''>
-                    <button onclick='setPrefix()'>Prefix</button>
-                    
-                    <input type='checkbox' id='prefix_inside' onclick='updateText()'>
-                    <label for='prefix_inside' class='quotesLabel'>Within quotes</label>
-
-                    <button onclick='clearPrefix()'>No Prefix</button><hr>
-
-                    <input type='text' id='suffix' placeholder='Suffix' class='long_textbox' value=''>
-                    <button onclick='setSuffix()'>Suffix</button>
-                    
-                    <input type='checkbox' id='suffix_inside' onclick='updateText()'>
-                    <label for='suffix_inside' class='quotesLabel'>Within quotes</label>
-
-                    <button onclick='clearSuffix()'>No Suffix</button>
-                </div>
-                
-                <div class='main_frame check_frame' id='analysis_frame'>
-                    <h5>Analysis options</h5>
-                    <input type='checkbox' name='keepchar' data-char="'" id='keepsingle'>
-                    <label for='keepsingle'>Keep single quotes</label>
-                    
-                    <input type='checkbox' name='keepchar' data-char='"'  id='keepdouble'>
-                    <label for='keepdouble'>Keep double quotes</label>
-                    
-                    <input type='checkbox' name='splitchar' data-char='\n' id='splitlinefeed' checked>
-                    <label for='splitlinefeed'>Split on linefeed</label>
-                    
-                    <input type='checkbox' name='splitchar' data-char=',' id='splitcomma' checked>
-                    <label for='splitcomma'>Split on commas</label>
-                    
-                    <input type='checkbox' name='splitchar' data-char=';' id='splitsemi' checked>
-                    <label for='splitsemi'>Split on semicolons</label>
-                    
-                    <input type='checkbox' name='splitchar' data-char='|' id='splitpipe' checked>
-                    <label for='splitpipe'>Split on pipe</label>
-                    
-                    <input type='checkbox' name='splitchar' data-char=' ' id='splitspace' checked>
-                    <label for='splitspace'>Split on space</label>
-                </div>
-                
-                <hr>
-
             </div>
 
             <div class='bottom_div'>
